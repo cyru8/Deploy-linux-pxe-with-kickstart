@@ -1,0 +1,10 @@
+---
+# vars file for firewalld
+nginx_ssh_port: 22
+ntp_port: 123
+http_port: 80
+dhcp_port: 67
+tftp_port: 69
+ftp_data: 20
+ftp_cont: 21
+

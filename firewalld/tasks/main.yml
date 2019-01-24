@@ -1,0 +1,80 @@
+---
+# tasks file for firewalld
+- name: install the latest version of Firewalld
+  yum:
+    name: firewalld
+    state: latest
+  become: true
+
+- name: Allow port 22 on firewalld rule for nginx
+  firewalld:
+    port: "{{ nginx_ssh_port }}/tcp"
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Allow port 123 on firewalld rule for hosts
+  firewalld:
+    port: "{{ ntp_port }}/tcp"
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Allow port 80 on firewalld rule for pxe
+  firewalld:
+    port: "{{ http_port }}/tcp"
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Allow port 67 on firewalld rule for pxe
+  firewalld:
+    port: "{{ dhcp_port }}/tcp"
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Allow port 69 on firewalld rule for pxe
+  firewalld:
+    port: "{{ tftp_port }}/udp"
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Allow port 69 on firewalld rule for pxe
+  firewalld:
+    port: "{{ tftp_port }}/tcp"
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Allow port 20 on firewalld rule for pxe
+  firewalld:
+    port: "{{ ftp_data }}/tcp"
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Allow port 21 on firewalld rule for pxe
+  firewalld:
+    port: "{{ ftp_cont }}/tcp"
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Enable firewalld service.
+  service:
+    name: firewalld
+    enabled: yes
+  become: true
+
+- name: start firewalld service.
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+  become: true
+
+#force all handlers to run  
+- meta: flush_handlers
+

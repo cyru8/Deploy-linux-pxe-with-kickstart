@@ -1,0 +1,36 @@
+---
+# tasks file for firewalld
+- name: install the latest version of http
+  yum:
+    name: httpd
+    state: latest
+  become: true
+
+- name: copying httpd.conf to /etc/httpd/conf/ Directory
+  copy:
+    src: httpd.conf
+    dest: /etc/httpd/conf/
+  become: true
+
+- name: Create a apache configuration file, pxeboot.conf for PXE server under /etc/httpd/conf.d/ directory
+  copy: 
+    src: pxeboot.conf
+    dest: /etc/httpd/conf.d/pxeboot.conf
+  become: true
+
+- name: Enable httpd service.
+  service:
+    name: httpd
+    enabled: yes
+  become: true
+
+- name: start httpd service.
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+  become: true
+
+#force all handlers to run  
+- meta: flush_handlers
+

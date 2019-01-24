@@ -1,0 +1,139 @@
+---
+# -name: Install a list of packages to prepared Linux Server
+
+- name: Install a tftp-server deamon
+  yum:
+    name:
+      - tftp
+      - tftp-server
+      - xinetd
+      - vsftpd
+      - syslinux
+    state: present
+  become: true
+
+- name: copying tftp to the /etc/xinetd.d/
+  copy:
+    src: tftp
+    dest: /etc/xinetd.d/tftp
+  become: true
+
+- name: Creates /tftpboot directory
+  file:
+    path: /tftpboot
+    state: directory
+    mode: 0777
+
+- name: copying pxelinux.0 to the /var/lib/tftpboot/ directory.
+  copy:
+    src: pxelinux.0
+    dest: /var/lib/tftpboot/
+  become: true
+
+- name: copying menu.c32 to the /var/lib/tftpboot/ directory.
+  copy:
+    src: menu.c32
+    dest: /var/lib/tftpboot/
+  become: true
+
+- name: copying memdisk to /var/lib/tftpboot/ directory.
+  copy:
+    src: memdisk
+    dest: /var/lib/tftpboot/
+  become: true
+
+- name: copying mboot.c32 to the /var/lib/tftpboot/ directory.
+  copy:
+    src: mboot.c32
+    dest: /var/lib/tftpboot/
+  become: true
+
+- name: copying chain.c32 to the /var/lib/tftpboot/ directory.
+  copy:
+    src: chain.c32
+    dest: /var/lib/tftpboot/
+  become: true
+
+- name: Creates /var/lib/tftpboot/pxelinux.cfg 
+  file:
+    path: /var/lib/tftpboot/pxelinux.cfg 
+    state: directory
+    mode: 0777
+
+- name: copying default to /var/lib/tftpboot/pxelinux.cfg/default
+  copy:
+    src: default
+    dest: /var/lib/tftpboot/pxelinux.cfg/default
+  become: true
+
+- name: Creates /var/lib/tftpboot/centos7_x64
+  file:
+    path: /var/lib/tftpboot/centos7_x64
+    state: directory
+    mode: 0755
+
+- name: copying CentOS-7-x86_64-DVD-1810.iso to the /tmp/
+  copy:
+    src: CentOS-7-x86_64-DVD-1810.iso
+    dest: /tmp/
+  become: true
+
+# Mount Cenots ISO to FTP folder /var/ftp/pub.
+- name: Extract kernel and ramdisk from a CentOS ISO
+  mount:
+    path: /mnt/
+    src: /tmp/CentOS-7-x86_64-DVD-1810.iso
+    fstype: auto
+    opts: defaults
+    state: mounted
+  become: true
+
+- name: copying all the files contents from /mnt to /var/lib/tftpboot/centos7_x64
+  copy: 
+    src: /mnt/{{item}}
+    dest: /var/lib/tftpboot/centos7_x64
+    mode: 0755
+    remote_src: yes
+  with_items:
+    - CentOS_BuildTag 
+    - .discinfo 
+    - EULA 
+    - GPL
+    - RPM-GPG-KEY-CentOS-7
+    - RPM-GPG-KEY-CentOS-Testing-7
+    - TRANS.TBL
+    - .treeinfo
+  become: true
+
+- name: copy ISO Direcories
+  command: cp -r /mnt/{{ item }} /var/lib/tftpboot/centos7_x64
+  with_items:
+   - "EFI/"
+   - "images"
+   - "isolinux"
+   - "LiveOS"
+   - "Packages"
+   - "repodata"
+
+- name: copying ks.cfg to /var/lib/tftpboot/centos7_x64/
+  copy:
+    src: ks.cfg
+    dest: /var/lib/tftpboot/centos7_x64/
+  become: true
+
+- name: Enable tftpd service.
+  service:
+    name: tftpd
+    enabled: yes
+  become: true
+
+- name: start tftpd service.
+  service:
+    name: tftpd
+    state: started
+    enabled: yes
+  become: true
+
+# Force all Handlers to run
+- meta: flush_handlers
+

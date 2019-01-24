@@ -1,0 +1,15 @@
+---
+# handlers file for firewalld
+
+- name: Enable xinetd service.
+  service:
+    name: xinetd
+    enabled: yes
+  become: true
+
+- name: start xinetd
+  service:
+    name: xinetd
+    state: started
+    enabled: yes
+  become: true
