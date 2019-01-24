@@ -1,0 +1,15 @@
+default menu.c32
+prompt 0
+timeout 30
+menu title #### TechPro Linux Distro PXE Menu ####
+
+label 1
+menu label ^1)  Install CentOS 7 x64
+menu default
+kernel centos7_x64/images/pxeboot/vmlinuz
+append initrd=centos7_x64/images/pxeboot/initrd.img http_server=http://192.168.2.142 inst.ks=http://192.168.2.142/centos7_x64/ks.cfg
+
+label 2
+menu label ^2) Boot from local drive
+localboot 0
+
